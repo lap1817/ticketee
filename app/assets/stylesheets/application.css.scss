@@ -67,3 +67,7 @@ a.delete{
 .alert-alert{
 	@extend .alert-danger;
 }
+
+form {
+	max-width: 500px;
+}
