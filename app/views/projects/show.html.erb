@@ -8,6 +8,8 @@
 	</ul>
 </header>
 
+<p><%= @project.description %></p>
+
 <header>
 	<h2>Tickets</h2>
 	
@@ -16,6 +18,9 @@
 	</ul>
 </header>
 
-<p><%= @project.description %></p>
-
+<ul id="tickets">
+	<% @project.tickets.each do |ticket| %>
+		<li>#<%= ticket.id %> - <%= link_to ticket.name, [@project, ticket] %></li>
+	<% end %>
+</ul>
 
