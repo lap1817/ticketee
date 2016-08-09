@@ -48,4 +48,11 @@ RSpec.configure do |config|
   # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
   ActiveRecord::Migration.maintain_test_schema!
+  config.include Warden::Test::Helpers, type: :feature
+  config.before(type: :feature) {
+    Warden.test_mode!
+  }
+  config.after(type: :feature) { 
+	Warden.test_reset! 
+  }
 end
