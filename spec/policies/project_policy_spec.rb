@@ -40,79 +40,54 @@ describe ProjectPolicy do
 	end
   end
   
-  permissions :show? do
-    let(:user) {FactoryGirl.create(:user)}
+  context "permissions" do
+	subject { ProjectPolicy.new(user, project)}
+	
+	let(:user) {FactoryGirl.create(:user)}
 	let(:project) {FactoryGirl.create(:project)}
 	
-	it "blocks anonymous users" do
-		expect(subject).not_to permit(nil, project)
+	context "for anonymous users" do
+		let(:user) {nil}
+		
+		it {should_not permit_action :show}
+		it {should_not permit_action :update}
 	end
 	
-	it "allows viewers of the project" do
-		assign_role!(user, :viewer, project)
-		expect(subject).to permit(user, project)
+	context "for viewers of the project" do
+		before { assign_role!(user, :viewer, project)}
+		
+		it {should permit_action :show}
+		it {should_not permit_action :update}
 	end
 	
-	it "allows editor of the project" do
-		assign_role!(user, :editor, project)
-		expect(subject).to permit(user, project)
+	context "for editor of the project" do
+		before { assign_role!(user, :editor, project)}
+		
+		it {should permit_action :show}
+		it {should_not permit_action :update}
 	end
 	
-	it "allows manager of the project" do
-		assign_role!(user, :manager, project)
-		expect(subject).to permit(user, project)
-	end
-	
-	it "allows admin" do
-		admin = FactoryGirl.create(:user, :admin)
-		expect(subject).to permit(admin, project)
-	end
-	
-	it "does not allow users assigned to other project" do
-		other_project = FactoryGirl.create(:project)
-		assign_role!(user, :manager, other_project)
-		expect(subject).not_to permit(user, project)
-	end
-	
-  end
-
-  permissions :update? do
-    let(:user) {FactoryGirl.create(:user)}
-	let(:project) {FactoryGirl.create(:project)}
-	
-	it "blocks anonymous users" do
-		expect(subject).not_to permit(nil, project)
-	end
-	
-	it "blobks  viewers of the project" do
-		assign_role!(user, :viewer, project)
-		expect(subject).not_to permit(user, project)
-	end
-	
-	it "blocks editor of the project" do
-		assign_role!(user, :editor, project)
-		expect(subject).not_to permit(user, project)
-	end
-	
-	it "allows manager of the project" do
-		assign_role!(user, :manager, project)
-		expect(subject).to permit(user, project)
-	end
-	
-	it "allows admin" do
-		admin = FactoryGirl.create(:user, :admin)
-		expect(subject).to permit(admin, project)
-	end
-	
-	it "does not allow users assigned to other project" do
-		other_project = FactoryGirl.create(:project)
-		assign_role!(user, :manager, other_project)
-		expect(subject).not_to permit(user, project)
+	context "for managers of the project" do
+		before { assign_role!(user, :manager, project)}
+		
+		it {should permit_action :show}
+		it {should permit_action :update}
 	end
 
-  end
+	context "for managers of other project" do
+		before { assign_role!(user, :viewer, FactoryGirl.create(:project))}
+		
+		it {should_not permit_action :show}
+		it {should_not permit_action :update}
+	end
 
-  permissions :destroy? do
-    pending "add some examples to (or delete) #{__FILE__}"
+	context "for admin of the project" do
+		let(:user) {FactoryGirl.create(:user, :admin)}
+		
+		it {should permit_action :show}
+		it {should permit_action :update}
+	end
+
+	
   end
 end
